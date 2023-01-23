@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 from airflow import DAG # -> instantiate a DAG 
-from airflow.operators.bash_operators import BashOperator #-> Writting Task 
+from airflow.operators.bash_operator import BashOperator #-> Writting Task 
 from airflow.utils.dates import days_ago #-> make scheduling easy 
 
 # 2. Defining DAG Arguments
@@ -22,16 +22,16 @@ defaults_args = {
     'email_on_retry' : False,
     'retries' : 1,
     'retry_delay' : timedelta(minutes=5)
-)
+}
 #3. Python function Definition Block
 # Now we’ll create a DAG object and pass the dag_id, which is the name of the DAG. Make sure you haven’t already established a DAG with this name.
 # Add a description and schedule interval to the previously created input, and the DAG will execute after the specified time interval.
 source  = 'https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Apache%20Airflow/Build%20a%20DAG%20using%20Airflow/web-server-access-log.txt'
 
 dag = DAG(
-    'ingestion_dag',
-    default_args=default_args,
-    description='My First DAG',
+    'ETL_toll_data',
+    default_args= defaults_args ,
+    description='Scheduler to ingest toll data into db ',
     schedule_interval=timedelta(days=1)
 )
 
@@ -40,10 +40,10 @@ dag = DAG(
 # # run_this = BashOperator(
 #     task_id="run_after_loop",
 #     bash_command="echo 1",
-)
+
 download = BashOperator(
     task_id="Download_Source",
-     bash_command = "wget source"
+     bash_command = "wget source",
      dag=dag,
 )
 
@@ -59,7 +59,7 @@ extract = BashOperator(
 
 transform = BashOperator( 
     task_id = 'Capitalize',
-    bash_command = 'tr "[a-z]" "[A-Z]" < /home/project/airflow/dags/extracted.txt > /home/project/airflow/dags/capitalized.txt'
+    bash_command = 'tr "[a-z]" "[A-Z]" < /home/project/airflow/dags/extracted.txt > /home/project/airflow/dags/capitalized.txt',
     dag=dag
 )
 
